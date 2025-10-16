@@ -144,9 +144,10 @@ SELECT CONCAT_WS(':',base_number,base_name) AS Concat_Number_name FROM RideShare
 
 -- 3. How many titles contain the word "The"?  
 -- A. Is there a difference between the number of titles that use "The" or "the"?
--- SELECT Count(title) AS count_title
--- FROM BooksDB.dbo.books
--- WHERE title LIKE 'The %' OR title LIKE '% the %'
+SELECT Count(title) AS count_title
+FROM BooksDB.dbo.books
+WHERE title LIKE 'The %' OR title LIKE '% the %' or title LIKE '%The %;
+
 
 -- SELECT Count(DISTINCT(authors)) AS authors_z
 -- FROM BooksDB.dbo.books
@@ -190,5 +191,132 @@ SELECT CONCAT_WS(':',base_number,base_name) AS Concat_Number_name FROM RideShare
 -- SELECT title + ' by ' + authors + ' in ' + COALESCE(language_code,'unknown') AS 'Reading List'
 -- FROM BooksDB.dbo.books
 -- YES
--- SELECT title + ' by ' + authors + ' in ' + ISNULL(language_code,'unknown') AS 'Reading List'
--- FROM BooksDB.dbo.books
+SELECT title + ' by ' + authors + ' in ' + ISNULL(language_code,'unknown') AS 'Reading List'
+FROM BooksDB.dbo.books
+
+SELECT CONCAT(title, ' by ', authors, ' in ', ISNULL(language_code, 'unknown'), ' language') AS BookInfo
+FROM BooksDb.dbo.books
+SELECT CONCAT(title, ' by ', authors, ' in ', COALESCE(language_code, 'unknown' ), ' language') AS BookInfo
+FROM BooksDB.dbo.books
+**********************************************************************************************************
+USE LaborStatisticsDB
+select data_type_code,data_type_text  FROM dbo.datatype WHERE data_type_text = 'Women Employees' --10
+select * from dbo.series where data_type_code=10 and series_title = 'Women Employees'
+select supersector_code from dbo.supersector where supersector_name LIKE 'financial activities'--55
+select * from dbo.series where supersector_code = 55 and series_title = 'women employees'
+select series_id,industry_code,supersector_code,series_title from dbo.series 
+where industry_code = 55522110 and supersector_code=55 and series_title = 'women employees' --CES5552211010
+select industry_code from dbo.industry where industry_name like 'commercial banking' ---55522110
+select * from dbo.industry
+select * from dbo.series
+select SUM(value) from dbo.annual_2016 where series_id IN('CES5552211010','CEU5552211010')
+select  SUM(value)AS total_employees from dbo.annual_2016 --2351408916
+*******************************************************************************************************************
+SELECT TOP 30 b.title, b.average_rating, b.books_count,tr.user_id, tr.book_id
+FROM BooksDB.dbo.books AS b
+LEFT JOIN BooksDB.dbo.to_read AS tr
+ON b.best_book_id = tr.book_id
+ORDER BY b.average_rating;
+
+SELECT TOP 50 b.title, b.average_rating, b.books_count,tr.user_id, tr.book_id
+FROM BooksDB.dbo.books AS b
+LEFT JOIN BooksDB.dbo.to_read AS tr
+ON b.best_book_id = tr.book_id
+WHERE tr.user_id IS NOT NULL
+ORDER BY b.average_rating;
+
+SELECT TOP 30 b.title, b.average_rating, b.books_count, tr.user_id, tr.book_id
+FROM BooksDB.dbo.books AS b
+RIGHT JOIN BooksDB.dbo.to_read AS tr
+ON b.best_book_id = tr.book_id;
+
+SELECT TOP 30 b.title, b.average_rating, b.books_count,tr.user_id, tr.book_id
+FROM BooksDB.dbo.books AS b
+FULL JOIN BooksDB.dbo.to_read AS tr
+ON b.book_id = tr.book_id WHERE books_count<30 ORDER BY average_rating DESC;
+
+SELECT TOP 30 b.title, b.average_rating, b.books_count,tr.user_id, tr.book_id
+FROM BooksDB.dbo.books AS b
+INNER JOIN BooksDB.dbo.to_read AS tr
+ON b.book_id = tr.book_id
+ORDER BY tr.book_id;
+-- **Part A:**  What is the most tagged book?
+
+-- Start by joining the `books` and `book_tags` tables ON the `books.best_book_id` and `book_tags.goodreads_book_id`. We want the *most popular* book, so think about ordering the table in a way that will display both the book title and the number of times a book tag has been used.
+
+-- Minimum Desired output:_  The title of the most tagged book, and the number of times the book has been tagged.
+SELECT TOP 1 b.title,SUM(bt.count) as total_tags
+FROM BooksDB.dbo.books AS b
+INNER JOIN BooksDB.dbo.book_tags AS bt
+ON b.best_book_id = bt.goodreads_book_id 
+group by b.title order by total_tags DESC
+--Harry Potter and the Sorcerer's Stone (Harry Potter, #1)
+--786374
+**Part B:** How many different tags have been used for the most tagged book?
+
+Start by joining the `books` and `book_tags` tables ON the `books.best_book_id` and `book_tags.goodreads_book_id`.
+ We want to find the *most popular* tag id, so think about ordering in a way that will display the most popular tag id.
+
+*Minimum Desired Output:* The tag id for the most popular tag used for the most tagged book.
+
+SELECT TOP 1 SUM(bt.count) as tag_count,bt.tag_id
+FROM BooksDB.dbo.books AS b
+INNER JOIN BooksDB.dbo.book_tags AS bt
+ON b.best_book_id = bt.goodreads_book_id
+group by bt.tag_id order by tag_count DESC
+--30574
+--137038053
+SELECT tag_name ,tag_id from BooksDB.dbo.tags where tag_name LIKE '%christmas%' where bt.tag_id = 6967
+--childrens-christmas-books
+--6967
+
+SELECT tag_name ,tag_id from BooksDB.dbo.tags
+where tag_name LIKE '%halloween%'
+--Alyce selected `halloween-storytime`, with a tag id of 13877.
+--to-read
+
+-- **Part B:** Now that you have the tag id, find the title that was tagged the most with this tag by joining the `books` and `books_tags` tables.
+
+-- Alyce joined the book table with the tags table and discovered that "The Little Old Lady Who Was Not Afraid of Anything" was tagged as `halloween-storytime` the most.
+
+-- *Minimum Desired Output:* title and tag count
+
+-- **Your Title and Number of times the tag was used:**
+SELECT b.title, count(bt.tag_id) as tag_count from BooksDb.dbo.books as b
+INNER JOIN BooksDB.dbo.book_tags as bt ON b.best_book_id=bt.goodreads_book_id
+ where bt.tag_id = 13877
+GROUP BY  title
+ORDER BY tag_count
+
+
+SELECT  b.title, count(bt.tag_id) as tag_count from BooksDb.dbo.books as b
+INNER JOIN BooksDB.dbo.book_tags as bt ON b.best_book_id=bt.goodreads_book_id  
+where bt.tag_id = 13877
+GROUP BY title
+ORDER BY tag_count DESC
+-- **Part B:** Organize your newly joined table in a way that groups popularity based on the title based on users.
+
+-- *Hint:* Suggest using an alias for the aggregation you will need to run on the `user_id`
+
+-- *Minimum Desired Output:* title and aliased column
+
+SELECT  b.title, count(tr.USER_ID) as users from BooksDb.dbo.books as b
+INNER JOIN BooksDB.dbo.to_read as tr ON b.book_id=tr.book_id  
+GROUP BY title
+ORDER BY users DESC
+-- ## **QUESTION 8:** Largest 'To Read' Lists
+
+-- **Part A:**  Create a query that returns a table that contains the top 10 users with the most number of titles on their 'to read' list.    Group all the entries by `user_id`.
+
+-- _Hint:_ You might want an alias for the titles.
+
+-- _Minimum Desired Output:_ `user_id` and your aliased column of titles.
+SELECT  TOP 10 tr.USER_ID,count(b.title) as Number_Titles from BooksDb.dbo.books as b
+INNER JOIN BooksDB.dbo.to_read as tr ON b.book_id=tr.book_id  
+GROUP BY tr.USER_ID
+ORDER BY Number_Titles DESC
+
+**Part B:**  The longest list length is 15 titles total, and is shared by 4 different users.  Select one of the uses and print out their entire 'to read' list.
+SELECT b.title from BooksDb.dbo.books as b
+INNER JOIN BooksDB.dbo.to_read as tr ON b.book_id=tr.book_id 
+WHERE tr.USER_ID = 14771
