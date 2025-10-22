@@ -143,3 +143,103 @@ FROM BooksDB.dbo.books as B
 
 --For each event write at least one query that joins any two tables in `BooksDB` to support your choice 
 -- and record you thoughts as to why you used the paticlular query. At least one of your queries needs to include a `HAVING` clause.
+
+--1. Join `annual_2016` with `series` on `series_id`. We only want the data in the `annual_2016` table to be included in the result.
+USE LaborStatisticsDB
+select TOP 50
+    A16.*
+from dbo.annual_2016 AS A16
+    INNER JOIN dbo.series AS series
+    ON A16.series_id=series.series_id
+    INNER JOIN dbo.datatype AS dt
+    ON series.data_type_code = dt.data_type_code
+    INNER JOIN dbo.industry as i
+    on series.industry_code=i.industry_code
+ORDER BY A16.id
+-- Write a query that returns the series_id, industry_code, industry_name, and value
+-- from the january_2017 table but only if that value is greater than the average value for annual_2016 of data_type_code 82.
+WITH
+    cte_value
+    AS
+    
+    (
+        SELECT AVG(ann.value) as avg_value
+        FROM dbo.annual_2016 AS ann
+            INNER JOIN dbo.series as s2
+            ON ann.series_id=s2.series_id
+        WHERE data_type_code=82
+    )
+SELECT jan.series_id, series.industry_code, industry.industry_name, jan.[value]
+FROM dbo.january_2017 as Jan
+    INNER JOIN dbo.series as series
+    on jan.series_id = series.series_id
+    -- INNER JOIN dbo.annual_2016 AS ann
+    -- ON ann.series_id=series.series_id
+    INNER JOIN dbo.industry as industry
+    ON series.industry_code = industry.industry_code
+where jan.[value]>(select avg_value
+from cte_value)
+WHERE  jan.[value]>
+(
+    SELECT AVG(ann.value)
+FROM dbo.annual_2016 AS ann
+    INNER JOIN dbo.series as s2
+    ON ann.series_id=s2.series_id
+WHERE data_type_code=82
+    )
+WITH
+    cte_value
+    AS
+    
+    (
+        SELECT AVG(ann.value)
+        FROM dbo.annual_2016 AS ann
+            INNER JOIN dbo.series as s2
+            ON ann.series_id=s2.series_id
+        WHERE data_type_code=82
+    )
+SELECT *
+from dbo.annual_2016
+where [value]=(select *
+from cte_value)
+select *
+from dbo.annual_2016
+select *
+from dbo.january_2017
+
+select *
+from dbo.series
+select *
+from dbo.datatype
+where data_type_code =82
+
+SELECT jan.series_id, series.industry_code, industry.industry_name, jan.[value]
+FROM dbo.january_2017 as Jan
+    INNER JOIN dbo.series as series
+    on jan.series_id = series.series_id
+    INNER JOIN dbo.industry as industry
+    ON series.industry_code = industry.industry_code
+WHERE  jan.[value]> (
+    SELECT AVG(ann.value)
+FROM dbo.annual_2016 AS ann
+    INNER JOIN dbo.series as s2
+    ON ann.series_id=s2.series_id
+WHERE data_type_code=82
+    )
+/*Create a Union table comparing average weekly earnings of production and nonsupervisory employees 
+between annual_2016 and january_2017 using the data type 30. Round to the nearest penny. 
+You should have a column for the average earnings and a column for the year, and the period.*/
+    SELECT Ann_2016.[year], ROUND(AVG(Ann_2016.[value]),2)AS average_earnings, Ann_2016.[period]
+    FROM annual_2016 as Ann_2016
+        INNER JOIN dbo.series as s2
+        ON Ann_2016.series_id=s2.series_id
+    WHERE data_type_code=30
+    GROUP BY Ann_2016.[year],Ann_2016.[period]
+UNION
+    SELECT Jan_2017.[year], ROUND(AVG(Jan_2017.[value]),2)AS average_earnings, Jan_2017.[period]
+    FROM january_2017 as Jan_2017
+        INNER JOIN dbo.series as s2
+        ON Jan_2017.series_id=s2.series_id
+    WHERE data_type_code=30
+    GROUP BY Jan_2017.[year],Jan_2017.[period]
+
