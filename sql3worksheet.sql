@@ -161,7 +161,7 @@ ORDER BY A16.id
 WITH
     cte_value
     AS
-    
+
     (
         SELECT AVG(ann.value) as avg_value
         FROM dbo.annual_2016 AS ann
@@ -190,7 +190,7 @@ WHERE data_type_code=82
 WITH
     cte_value
     AS
-    
+
     (
         SELECT AVG(ann.value)
         FROM dbo.annual_2016 AS ann
@@ -243,3 +243,12 @@ UNION
     WHERE data_type_code=30
     GROUP BY Jan_2017.[year],Jan_2017.[period]
 
+INSERT into schema_name.recipes
+    (name,DESCRIPTION,instructions)
+VALUES(coffee, wake-up
+human,'')
+UPDATE schema_name.recipes 
+    SET instructions  ='Call Dominos and order for delivery'
+    where recipeId=2
+DELETE from schema_name.recipes 
+where description ='frozen'
