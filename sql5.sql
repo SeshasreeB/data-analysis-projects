@@ -366,4 +366,4 @@ WHERE series_id IN(
 from dbo.series as a
 WHERE a.data_type_code=6)
 select *
-from dbo.footnote
+from LaborStatisticsDB.dbo.january_2017
