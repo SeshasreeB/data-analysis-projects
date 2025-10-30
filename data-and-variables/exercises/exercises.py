@@ -16,11 +16,11 @@ print(type(Miles_per_KM))
 miles_to_mars = distance_Mars_km * Miles_per_KM
 hours_to_mars = miles_to_mars / shuttle_Speed_mph
 days_to_mars = hours_to_mars / 24
+days_to_mars = str(days_to_mars)
 print(name_spaceShuttle + " will take " + days_to_mars + " days to reach Mars. ")
 # Code your solution to exercise 5 here
 miles_to_moon = distance_Moon_km * Miles_per_KM
 hours_to_moon = miles_to_moon / shuttle_Speed_mph
 days_to_moon = hours_to_moon /24
+days_to_moon = str(days_to_moon)
 print(name_spaceShuttle + " will take " + days_to_moon + " days to reach the Moon. ")
-
-# cannot concatenate a float with string is what i'm getting
