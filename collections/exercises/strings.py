@@ -10,12 +10,7 @@ print(text[-12:])
 print(text[len(text) - 12])
 
 # 3. Print a slice of the middle 12 characters from 'text'.
-print(len(text))
-middle_index = int(len(text)/2)
-print ( middle_index)
-start_index = middle_index -6
-end_index = middle_index +6
-print(text[start_index:end_index])
+print(text[12:24])
 
 # ---- Exercise 3: Looping Through a String ----
 
