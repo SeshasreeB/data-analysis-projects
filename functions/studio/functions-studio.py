@@ -35,7 +35,7 @@ def reverse_characters(input_reverse):
         new_string_reverse = "".join(list(new_string)[::-1])
         number_reverse = int(new_string_reverse)
         return number_reverse
-#input_reverse = "LaunchCode"
+input_reverse = "LaunchCode"
 input_reverse = 123456
 print(reverse_characters(input_reverse))
 # 3) Create a new function with one parameter, which is the list we want to change. The function should:
